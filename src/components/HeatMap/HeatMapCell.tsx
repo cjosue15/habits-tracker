@@ -12,8 +12,8 @@ export const Cell = ({ weekIndex, dayIndex, index, data }: CellProps) => {
       <rect
         x={xPosition}
         y={yPosition}
-        rx={1}
-        ry={1}
+        rx={2}
+        ry={2}
         width={RECT_SIZE}
         height={RECT_SIZE}
         className={`cursor-pointer ${data.cssClass}`}
