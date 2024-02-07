@@ -1,4 +1,11 @@
-import { DAYS_IN_WEEK, GAP, MILISECONDS_IN_DAY, RECT_SIZE } from "./constants";
+import {
+  DAYS_IN_WEEK,
+  GAP,
+  MILISECONDS_IN_DAY,
+  RECT_SIZE,
+  WIDTH_LABEL,
+  daysLabels,
+} from "./constants";
 import {
   convertToDate,
   getEmptyDaysAtStart,
@@ -9,6 +16,7 @@ import {
 
 import { Cell } from "./HeatMapCell";
 import { CellData, HeatMapProps } from "./interfaces";
+import { HeatMapDayLabel } from "./HeatMapDayLabel";
 
 export default function HeatMap({
   startDate,
@@ -21,7 +29,7 @@ export default function HeatMap({
   console.log({ days, weeks });
 
   const getWidthHeatMap = () => {
-    return (RECT_SIZE + GAP) * weeks - GAP;
+    return (RECT_SIZE + GAP) * weeks - GAP + WIDTH_LABEL;
   };
 
   const getHeigthHeatMap = () => {
@@ -48,7 +56,7 @@ export default function HeatMap({
 
   return (
     <svg x="0" y="0" width={getWidthHeatMap()} height={getHeigthHeatMap()}>
-      <svg x="0" y="0">
+      <svg x="30" y="0">
         {getRange(weeks).map((weekIndex) => {
           return getRange(DAYS_IN_WEEK).map(async (dayIndex) => {
             const index = weekIndex * DAYS_IN_WEEK + dayIndex;
@@ -72,6 +80,19 @@ export default function HeatMap({
               />
             );
           });
+        })}
+      </svg>
+      <svg className="heat-map-day-labels">
+        {getRange(DAYS_IN_WEEK).map((dayIndex) => {
+          const isOdd = dayIndex % 2 === 0;
+
+          return isOdd ? (
+            <HeatMapDayLabel
+              key={`day-label-${dayIndex}`}
+              label={daysLabels.at(dayIndex) ?? ""}
+              index={dayIndex}
+            />
+          ) : null;
         })}
       </svg>
     </svg>
