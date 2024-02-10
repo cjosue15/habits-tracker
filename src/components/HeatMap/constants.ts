@@ -16,6 +16,15 @@ export const mapedDays = {
 };
 
 export const daysLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+export const daysLabelsLong = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
+];
 export const MonthLabels = [
   "Jan",
   "Feb",
