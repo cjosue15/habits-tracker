@@ -27,7 +27,6 @@ export default function HeatMap({
 }: HeatMapProps) {
   const days = getNumberDays(startDate, endDate);
   const weeks = getWeeksCount(startDate, endDate);
-  console.log({ days, weeks });
 
   const getWidthHeatMap = () => {
     return (RECT_SIZE + GAP) * weeks - GAP + WIDTH_LABEL;
@@ -40,8 +39,7 @@ export default function HeatMap({
   const getDate = (index: number) =>
     new Date(startDate.getTime() + index * MILISECONDS_IN_DAY);
 
-  const generateData = async (index: number): Promise<CellData> => {
-    // console.log({ index });
+  const generateData = (index: number): CellData => {
     const currentDate = getDate(index);
     const dateMatched = dates.find(
       ({ date }) => convertToDate(date).getTime() === currentDate.getTime(),
@@ -51,7 +49,7 @@ export default function HeatMap({
     return {
       date: currentDate,
       value,
-      cssClass: await classForValue({ date: currentDate, value }),
+      cssClass: classForValue({ date: currentDate, value }),
     };
   };
 
@@ -95,7 +93,7 @@ export default function HeatMap({
       </svg>
       <svg x="30" y="20">
         {getRange(weeks).map((weekIndex) => {
-          return getRange(DAYS_IN_WEEK).map(async (dayIndex) => {
+          return getRange(DAYS_IN_WEEK).map((dayIndex) => {
             const index = weekIndex * DAYS_IN_WEEK + dayIndex;
             const isOutOfRange =
               index < getEmptyDaysAtStart(startDate) ||
@@ -103,9 +101,7 @@ export default function HeatMap({
 
             if (isOutOfRange) return null;
 
-            const data = await generateData(
-              index - getEmptyDaysAtStart(startDate),
-            );
+            const data = generateData(index - getEmptyDaysAtStart(startDate));
 
             return (
               <Cell

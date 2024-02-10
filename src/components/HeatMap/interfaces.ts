@@ -7,7 +7,7 @@ export interface HeatMapProps {
   startDate: Date;
   endDate: Date;
   dates: HeatMapDate[];
-  classForValue: (value: HeatMapDate) => Promise<string>;
+  classForValue: (value: HeatMapDate) => string;
 }
 
 export interface CellData extends HeatMapDate {
