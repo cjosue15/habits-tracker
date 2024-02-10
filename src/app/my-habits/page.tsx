@@ -1,6 +1,9 @@
-import Container from "@/components/Container";
-
+import Link from "next/link";
 import dayjs from "dayjs";
+
+import Container from "@/components/Container";
+import PlusIcon from "@/components/icons/plus";
+
 import { HabitsGrid } from "./ui/HabitsGrid";
 
 export default async function MyHabitsPage() {
@@ -10,10 +13,13 @@ export default async function MyHabitsPage() {
   const { habits } = await response.json();
   console.log(dayjs().format());
 
-  // console.log(habits);
-
   return (
     <Container>
+      <div className="flex justify-end pt-8">
+        <Link href="/my-habits/create" className="flex items-center gap-x-2">
+          Create new habit <PlusIcon />
+        </Link>
+      </div>
       <HabitsGrid habits={habits} />
     </Container>
   );
