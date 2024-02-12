@@ -1,4 +1,4 @@
-export default function OptionsIcon() {
+export function OptionsIcon() {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

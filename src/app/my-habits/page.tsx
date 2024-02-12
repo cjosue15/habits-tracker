@@ -2,7 +2,7 @@ import Link from "next/link";
 import dayjs from "dayjs";
 
 import Container from "@/components/Container";
-import PlusIcon from "@/components/icons/plus";
+import { PlusIcon } from "@/components/icons";
 
 import { HabitsGrid } from "./ui/HabitsGrid";
 
@@ -11,7 +11,6 @@ export default async function MyHabitsPage() {
     cache: "no-cache",
   });
   const { habits } = await response.json();
-  console.log(dayjs().format());
 
   return (
     <Container>

@@ -2,7 +2,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-import BackIcon from "@/components/icons/back";
+import { BackIcon } from "@/components/icons";
+import Card from "@/components/Card/Card";
 
 interface Day {
   id: number;
@@ -12,7 +13,7 @@ interface Day {
 export default function HabitForm() {
   const [title, setTitle] = useState<string>("");
   const [isTitleEmpty, setIsTitleEmpty] = useState<boolean>(false);
-  const [description, setDescription] = useState<string>("");
+  const [description, setDescription] = useState<string | null>(null);
 
   const days: Day[] = [
     { id: 1, shortDay: "M", day: "Monday" },
@@ -51,6 +52,7 @@ export default function HabitForm() {
 
       const data = await response.json();
       console.log(data);
+      handleBack();
     } catch (error) {}
   };
 
@@ -60,7 +62,7 @@ export default function HabitForm() {
         <BackIcon /> <span className="font-bold ml-2">BACK</span>
       </button>
 
-      <div className="w-full p-4 border rounded-lg shadow sm:p-6 md:p-8 bg-gray-800 border-gray-700">
+      <Card>
         <form className="space-y-6" onSubmit={handleSubmit}>
           <h5 className="text-xl font-medium text-white">Create new habit</h5>
           <div>
@@ -74,11 +76,11 @@ export default function HabitForm() {
               type="text"
               name="newHabit"
               id="newHabit"
-              className={`border text-sm rounded-lg block w-full p-3 bg-gray-600
+              className={`border text-sm rounded-lg block w-full p-3 bg-white outline-green-500
                 ${
                   isTitleEmpty
-                    ? "focus:ring-red-500 focus:border-red-500 border-red-400"
-                    : "focus:ring-blue-500 focus:border-blue-500 border-gray-500 placeholder-gray-400 text-white"
+                    ? "focus:ring-red-500 focus:border-red-500 border-red-400 text-black"
+                    : "focus:ring-green-500 focus:border-green-500 border-gray-500 placeholder-black text-black"
                 }`}
               placeholder="I commited to... or chose below"
               onChange={(e) => setTitle(e.target.value)}
@@ -103,7 +105,7 @@ export default function HabitForm() {
               name="description"
               id="description"
               rows={4}
-              className="border text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3 bg-gray-600 border-gray-500 placeholder-gray-400 text-white"
+              className="border text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-3 bg-white border-gray-500 outline-green-500 placeholder-black text-black"
               placeholder="You can use this space to write a description of your habit."
               onChange={(e) => setDescription(e.target.value)}
             ></textarea>
@@ -131,12 +133,12 @@ export default function HabitForm() {
           </div>
           <button
             type="submit"
-            className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-4 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+            className="w-full text-white bg-green-500 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-4 text-center"
           >
-            CREATE HABIT
+            Create habit
           </button>
         </form>
-      </div>
+      </Card>
     </>
   );
 }
