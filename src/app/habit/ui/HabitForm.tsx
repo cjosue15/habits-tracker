@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { BackIcon } from "@/components/icons";
@@ -10,22 +10,40 @@ interface Day {
   day: string;
   shortDay: string;
 }
-export default function HabitForm() {
+
+const days: Day[] = [
+  { id: 1, shortDay: "M", day: "Monday" },
+  { id: 2, shortDay: "T", day: "Tuesday" },
+  { id: 3, shortDay: "W", day: "Wednesday" },
+  { id: 4, shortDay: "T", day: "Thursday" },
+  { id: 5, shortDay: "F", day: "Friday" },
+  { id: 6, shortDay: "S", day: "Saturday" },
+  { id: 7, shortDay: "S", day: "Sunday" },
+];
+
+export default function HabitForm({ id }: { id?: string }) {
+  const router = useRouter();
   const [title, setTitle] = useState<string>("");
+  const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const [isTitleEmpty, setIsTitleEmpty] = useState<boolean>(false);
   const [description, setDescription] = useState<string | null>(null);
 
-  const days: Day[] = [
-    { id: 1, shortDay: "M", day: "Monday" },
-    { id: 2, shortDay: "T", day: "Tuesday" },
-    { id: 3, shortDay: "W", day: "Wednesday" },
-    { id: 4, shortDay: "T", day: "Thursday" },
-    { id: 5, shortDay: "F", day: "Friday" },
-    { id: 6, shortDay: "S", day: "Saturday" },
-    { id: 7, shortDay: "S", day: "Sunday" },
-  ];
+  useEffect(() => {
+    if (id) {
+      setIsEditMode(true);
+      fetchHabit(id);
+    }
+  }, [id]);
 
-  const router = useRouter();
+  const fetchHabit = async (id: string) => {
+    try {
+      const response = await fetch(`/api/habit/${id}`);
+      const { title, description } = await response.json();
+      console.log({ title, description });
+      setTitle(title);
+      setDescription(description);
+    } catch (error) {}
+  };
 
   const handleBack = () => {
     router.push("/my-habits");
@@ -38,9 +56,12 @@ export default function HabitForm() {
       return;
     }
 
+    const route = isEditMode ? `/api/habit/${id}` : "/api/habits";
+    const method = isEditMode ? "PUT" : "POST";
+
     try {
-      const response = await fetch("/api/habits", {
-        method: "POST",
+      const response = await fetch(route, {
+        method: method,
         body: JSON.stringify({
           title,
           description,
@@ -52,7 +73,7 @@ export default function HabitForm() {
 
       const data = await response.json();
       console.log(data);
-      handleBack();
+      router.push("/my-habits");
     } catch (error) {}
   };
 
@@ -76,11 +97,12 @@ export default function HabitForm() {
               type="text"
               name="newHabit"
               id="newHabit"
+              value={title}
               className={`border text-sm rounded-lg block w-full p-3 bg-white outline-green-500
                 ${
                   isTitleEmpty
                     ? "focus:ring-red-500 focus:border-red-500 border-red-400 text-black"
-                    : "focus:ring-green-500 focus:border-green-500 border-gray-500 placeholder-black text-black"
+                    : "focus:ring-green-500 focus:border-green-500 border-gray-500 placeholder-black/60 text-black"
                 }`}
               placeholder="I commited to... or chose below"
               onChange={(e) => setTitle(e.target.value)}
@@ -104,8 +126,9 @@ export default function HabitForm() {
             <textarea
               name="description"
               id="description"
+              value={description ?? ""}
               rows={4}
-              className="border text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-3 bg-white border-gray-500 outline-green-500 placeholder-black text-black"
+              className="border text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-3 bg-white border-gray-500 outline-green-500 placeholder-black/60 text-black"
               placeholder="You can use this space to write a description of your habit."
               onChange={(e) => setDescription(e.target.value)}
             ></textarea>
