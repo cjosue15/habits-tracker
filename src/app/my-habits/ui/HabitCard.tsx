@@ -7,6 +7,7 @@ import Card from "@/components/Card/Card";
 import { MenuItem, Menu, useClickOutside } from "@/components/Menu";
 import { EditIcon, OptionsIcon, TrashIcon } from "@/components/icons";
 import { useRouter } from "next/navigation";
+import { revalidate } from "@/actions/revalidate";
 
 const addRecord = async (habitId: string) => {
   const response = await fetch(`/api/record`, {
@@ -78,11 +79,6 @@ export const HabitCard = ({
     setOpen(false);
   });
 
-  const handleRefresh = () => {
-    console.log(router);
-    router.refresh();
-  };
-
   const handleCheckboxChange = (
     event: ChangeEvent<HTMLInputElement>,
     habit: Habit,
@@ -98,6 +94,17 @@ export const HabitCard = ({
         deleteRecord(lastRecord.id);
       }
     }
+
+    revalidate("my-habits");
+  };
+
+  const handleDelete = async () => {
+    await deleteHabit(habit.id);
+    revalidate("my-habits");
+  };
+
+  const handleEdit = () => {
+    router.push(`/habit/${habit.id}/edit`);
   };
 
   return (
@@ -109,19 +116,10 @@ export const HabitCard = ({
           </button>
           {open && (
             <Menu>
-              <MenuItem
-                onClick={() => {
-                  console.log("edit");
-                }}
-              >
+              <MenuItem onClick={handleEdit}>
                 <EditIcon className="size-4" /> Edit
               </MenuItem>
-              <MenuItem
-                onClick={async () => {
-                  await deleteHabit(habit.id);
-                  handleRefresh();
-                }}
-              >
+              <MenuItem onClick={handleDelete}>
                 <TrashIcon className="size-4" /> Delete
               </MenuItem>
             </Menu>

@@ -15,7 +15,7 @@ export default async function MyHabitsPage() {
   return (
     <Container>
       <div className="flex justify-end pt-8">
-        <Link href="/my-habits/create" className="flex items-center gap-x-2">
+        <Link href="/habit/create" className="flex items-center gap-x-2">
           Create new habit <PlusIcon />
         </Link>
       </div>

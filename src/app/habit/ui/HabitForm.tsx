@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 
 import { BackIcon } from "@/components/icons";
 import Card from "@/components/Card/Card";
+import { revalidate } from "@/actions/revalidate";
 
 interface Day {
   id: number;
@@ -72,6 +73,7 @@ export default function HabitForm({ id }: { id?: string }) {
       });
 
       const data = await response.json();
+      revalidate("/my-habits");
       console.log(data);
       router.push("/my-habits");
     } catch (error) {}
@@ -85,7 +87,9 @@ export default function HabitForm({ id }: { id?: string }) {
 
       <Card>
         <form className="space-y-6" onSubmit={handleSubmit}>
-          <h5 className="text-xl font-medium text-white">Create new habit</h5>
+          <h5 className="text-xl font-medium text-white">
+            {!id ? "Create new" : "Edit"} habit
+          </h5>
           <div>
             <label
               htmlFor="newHabit"
@@ -158,7 +162,7 @@ export default function HabitForm({ id }: { id?: string }) {
             type="submit"
             className="w-full text-white bg-green-500 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-4 text-center"
           >
-            Create habit
+            {!id ? "Create" : "Edit"} habit
           </button>
         </form>
       </Card>
