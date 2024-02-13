@@ -8,6 +8,7 @@ import { MenuItem, Menu, useClickOutside } from "@/components/Menu";
 import { EditIcon, OptionsIcon, TrashIcon } from "@/components/icons";
 import { useRouter } from "next/navigation";
 import { revalidate } from "@/actions/revalidate";
+import { Checkbox } from "@/components/Checkbox/Checkbox";
 
 const addRecord = async (habitId: string) => {
   const response = await fetch(`/api/record`, {
@@ -129,9 +130,7 @@ export const HabitCard = ({
           <h3 className="text-lg font-medium">{habit.title}</h3>
         </div>
         <div className="flex items-center">
-          <input
-            type="checkbox"
-            className="size-6 accent-green-500"
+          <Checkbox
             checked={isChecked}
             onChange={(event) => handleCheckboxChange(event, habit)}
           />
