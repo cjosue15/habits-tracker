@@ -3,6 +3,7 @@ export interface Habit {
   title: string;
   description?: string;
   records: Record[];
+  createdAt: string;
 }
 
 export interface Record {
