@@ -9,6 +9,9 @@ import { EditIcon, OptionsIcon, TrashIcon } from "@/components/icons";
 import { useRouter } from "next/navigation";
 import { revalidate } from "@/actions/revalidate";
 import { Checkbox } from "@/components/Checkbox/Checkbox";
+import { HabitsStatics } from "./HabitsStatics";
+import { convertToDate } from "@/components/HeatMap/helpers";
+import { MILISECONDS_IN_DAY } from "@/components/HeatMap/constants";
 
 const addRecord = async (habitId: string) => {
   const response = await fetch(`/api/record`, {
@@ -65,14 +68,10 @@ const deleteHabit = async (habitId: string) => {
   console.log(data);
 };
 
-export const HabitCard = ({
-  habit,
-  classForValue,
-}: {
-  habit: Habit;
-  classForValue: (value: HeatMapDate) => string;
-}) => {
+export const HabitCard = ({ habit }: { habit: Habit }) => {
   const router = useRouter();
+  const createdAt = convertToDate(new Date(habit.createdAt));
+  const now = convertToDate(new Date());
   const [isChecked, setIsChecked] = useState(checkRecord(habit));
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -108,6 +107,33 @@ export const HabitCard = ({
     router.push(`/habit/${habit.id}/edit`);
   };
 
+  const calculateMissingDays = () => {
+    const daysEllapsed = Math.round(
+      (now.getTime() - createdAt.getTime()) / MILISECONDS_IN_DAY,
+    );
+    return {
+      daysEllapsed: daysEllapsed + 1,
+      daysMissing: daysEllapsed - habit.records.length,
+    };
+  };
+
+  const { daysEllapsed } = calculateMissingDays();
+
+  const classForValue = ({ value, date }: HeatMapDate) => {
+    // missing record
+    if (
+      date.getTime() >= createdAt.getTime() &&
+      date.getTime() !== now.getTime() &&
+      !value
+    ) {
+      return "fill-red-500";
+    }
+
+    if (value === 1) return "fill-green-500";
+
+    return "fill-white/10";
+  };
+
   return (
     <Card key={habit.id}>
       <div className="flex items-center gap-x-4">
@@ -140,7 +166,14 @@ export const HabitCard = ({
       <p className="text-sm my-6">
         {habit.description ?? "No description here."}
       </p>
-      <div className="overflow-x-auto">
+
+      <HabitsStatics
+        records={habit.records}
+        createdAt={habit.createdAt}
+        daysEllapsed={daysEllapsed}
+      />
+
+      <div className="overflow-x-auto mt-6">
         <HeatMap
           startDate={new Date(2023, 5, 15)}
           endDate={new Date()}
@@ -151,6 +184,8 @@ export const HabitCard = ({
           classForValue={classForValue}
         />
       </div>
+
+      <div>{/* <g /> */}</div>
     </Card>
   );
 };

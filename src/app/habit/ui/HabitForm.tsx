@@ -5,11 +5,13 @@ import { useRouter } from "next/navigation";
 import { BackIcon } from "@/components/icons";
 import Card from "@/components/Card/Card";
 import { revalidate } from "@/actions/revalidate";
+import { Checkbox } from "@/components/Checkbox/Checkbox";
 
 interface Day {
   id: number;
   day: string;
   shortDay: string;
+  checked?: boolean;
 }
 
 const days: Day[] = [
@@ -23,11 +25,13 @@ const days: Day[] = [
 ];
 
 export default function HabitForm({ id }: { id?: string }) {
+  const mapedDays = days.map((day) => ({ ...day, checked: false }));
   const router = useRouter();
   const [title, setTitle] = useState<string>("");
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const [isTitleEmpty, setIsTitleEmpty] = useState<boolean>(false);
   const [description, setDescription] = useState<string | null>(null);
+  const [checkboxes, setCheckboxes] = useState<Day[]>(mapedDays);
 
   useEffect(() => {
     if (id) {
@@ -35,6 +39,12 @@ export default function HabitForm({ id }: { id?: string }) {
       fetchHabit(id);
     }
   }, [id]);
+
+  const handleCheckboxChange = (index: number) => {
+    const updatedCheckboxes = [...checkboxes];
+    updatedCheckboxes[index].checked = !updatedCheckboxes[index].checked;
+    setCheckboxes(updatedCheckboxes);
+  };
 
   const fetchHabit = async (id: string) => {
     try {
@@ -102,11 +112,11 @@ export default function HabitForm({ id }: { id?: string }) {
               name="newHabit"
               id="newHabit"
               value={title}
-              className={`border text-sm rounded-lg block w-full p-3 bg-white outline-green-500
+              className={`border text-sm rounded-lg block w-full p-3 bg-transparent outline-green-500
                 ${
                   isTitleEmpty
-                    ? "focus:ring-red-500 focus:border-red-500 border-red-400 text-black"
-                    : "focus:ring-green-500 focus:border-green-500 border-gray-500 placeholder-black/60 text-black"
+                    ? "focus:ring-red-500 focus:border-red-500 border-red-400 text-white"
+                    : "focus:ring-green-500 focus:border-green-500 border-white/80 placeholder-white/80 text-white"
                 }`}
               placeholder="I commited to... or chose below"
               onChange={(e) => setTitle(e.target.value)}
@@ -132,7 +142,7 @@ export default function HabitForm({ id }: { id?: string }) {
               id="description"
               value={description ?? ""}
               rows={4}
-              className="border text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-3 bg-white border-gray-500 outline-green-500 placeholder-black/60 text-black"
+              className="border text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-3 bg-transparent border-white/80 outline-green-500 placeholder-white/80 text-white"
               placeholder="You can use this space to write a description of your habit."
               onChange={(e) => setDescription(e.target.value)}
             ></textarea>
@@ -142,25 +152,20 @@ export default function HabitForm({ id }: { id?: string }) {
           {/* days in week */}
 
           <div className="flex justify-between gap-x-4">
-            {days.map((day) => (
+            {checkboxes.map((day, index) => (
               <div key={day.id} className="text-sm text-gray-300">
-                <label
-                  htmlFor={`${day.id}-${day.day}`}
+                <Checkbox
+                  checked={day.checked ?? false}
+                  onChange={() => handleCheckboxChange(index)}
+                  label={day.shortDay}
                   className="flex flex-col justify-center items-center"
-                >
-                  <input
-                    id={`${day.id}-${day.day}`}
-                    type="checkbox"
-                    className="size-6 mb-4 rounded-lg focus:ring-blue-600 ring-offset-gray-800 focus:ring-2 bg-gray-700 border-gray-600"
-                  />
-                  <span>{day.shortDay}</span>
-                </label>
+                />
               </div>
             ))}
           </div>
           <button
             type="submit"
-            className="w-full text-white bg-green-500 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-4 text-center"
+            className="w-full text-black bg-white hover:bg-white/90 focus:ring-4 focus:outline-none focus:ring-green-500 font-medium rounded-lg px-5 py-3 text-center"
           >
             {!id ? "Create" : "Edit"} habit
           </button>

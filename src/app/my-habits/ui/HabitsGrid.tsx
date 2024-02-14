@@ -10,19 +10,7 @@ export const HabitsGrid = ({ habits }: { habits: Habit[] }) => {
     <>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 my-16">
         {habits.map((habit: Habit) => {
-          const classForValue = ({ value }: HeatMapDate) => {
-            if (value === 1) return "fill-green-500";
-
-            return "fill-white/10";
-          };
-
-          return (
-            <HabitCard
-              key={habit.id}
-              habit={habit}
-              classForValue={classForValue}
-            />
-          );
+          return <HabitCard key={habit.id} habit={habit} />;
         })}
       </div>
 
