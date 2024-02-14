@@ -1,6 +1,5 @@
 "use client";
 
-import { Tooltip } from "react-tooltip";
 import { GAP, RECT_SIZE, daysLabelsLong } from "./constants";
 import { CellProps } from "./interfaces";
 

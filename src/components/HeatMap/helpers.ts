@@ -7,7 +7,9 @@ export const convertToDate = (date: Date) =>
   new Date(date.getFullYear(), date.getMonth(), date.getDate());
 
 export const getNumberDays = (startDate: Date, endDate: Date) => {
-  const timeDiff = new Date(endDate).getTime() - new Date(startDate).getTime();
+  const timeDiff =
+    new Date(endDate.setHours(0, 0, 0, 0)).getTime() -
+    new Date(startDate.setHours(0, 0, 0, 0)).getTime();
 
   const differenceInDays = timeDiff / MILISECONDS_IN_DAY;
 
