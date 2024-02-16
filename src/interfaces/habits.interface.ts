@@ -4,6 +4,7 @@ export interface Habit {
   description?: string;
   records: Record[];
   createdAt: string;
+  daysOff: string;
 }
 
 export interface Record {

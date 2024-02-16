@@ -21,11 +21,11 @@ const days: Day[] = [
   { id: 4, shortDay: "T", day: "Thursday" },
   { id: 5, shortDay: "F", day: "Friday" },
   { id: 6, shortDay: "S", day: "Saturday" },
-  { id: 7, shortDay: "S", day: "Sunday" },
+  { id: 0, shortDay: "S", day: "Sunday" },
 ];
 
 export default function HabitForm({ id }: { id?: string }) {
-  const mapedDays = days.map((day) => ({ ...day, checked: false }));
+  const mapedDays = days.map((day) => ({ ...day, checked: true }));
   const router = useRouter();
   const [title, setTitle] = useState<string>("");
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
@@ -49,8 +49,16 @@ export default function HabitForm({ id }: { id?: string }) {
   const fetchHabit = async (id: string) => {
     try {
       const response = await fetch(`/api/habit/${id}`);
-      const { title, description } = await response.json();
-      console.log({ title, description });
+      const { title, description, daysOff } = await response.json();
+
+      const daysOffParsed = !daysOff ? [] : JSON.parse(daysOff);
+      if (daysOffParsed.length > 0) {
+        const newCheckboxes = mapedDays.map((day) => {
+          const isChecked = !daysOffParsed.includes(day.id);
+          return { ...day, checked: isChecked };
+        });
+        setCheckboxes(newCheckboxes);
+      }
       setTitle(title);
       setDescription(description);
     } catch (error) {}
@@ -70,12 +78,17 @@ export default function HabitForm({ id }: { id?: string }) {
     const route = isEditMode ? `/api/habit/${id}` : "/api/habits";
     const method = isEditMode ? "PUT" : "POST";
 
+    const daysOff = checkboxes
+      .filter((day) => !day.checked)
+      .map((day) => day.id);
+
     try {
       const response = await fetch(route, {
         method: method,
         body: JSON.stringify({
           title,
           description,
+          ...(daysOff.length > 0 && { daysOff: JSON.stringify(daysOff) }),
         }),
         headers: {
           "Content-Type": "application/json",

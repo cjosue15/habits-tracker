@@ -19,9 +19,9 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const { title, description } = await request.json();
+    const { title, description, daysOff } = await request.json();
     const newHabit = await prisma?.habit.create({
-      data: { title, description },
+      data: { title, description, daysOff },
     });
     return NextResponse.json(newHabit, { status: 201 });
   } catch (error: any) {

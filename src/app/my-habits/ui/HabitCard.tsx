@@ -10,7 +10,10 @@ import { useRouter } from "next/navigation";
 import { revalidate } from "@/actions/revalidate";
 import { Checkbox } from "@/components/Checkbox/Checkbox";
 import { HabitsStatics } from "./HabitsStatics";
-import { convertToDate } from "@/components/HeatMap/helpers";
+import {
+  convertToDate,
+  getEmptyDaysAtStart,
+} from "@/components/HeatMap/helpers";
 import { MILISECONDS_IN_DAY } from "@/components/HeatMap/constants";
 
 const addRecord = async (habitId: string) => {
@@ -72,6 +75,8 @@ export const HabitCard = ({ habit }: { habit: Habit }) => {
   const router = useRouter();
   const createdAt = convertToDate(new Date(habit.createdAt));
   const now = convertToDate(new Date());
+  const daysOff = !habit.daysOff ? [] : JSON.parse(habit.daysOff);
+
   const [isChecked, setIsChecked] = useState(checkRecord(habit));
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -111,8 +116,23 @@ export const HabitCard = ({ habit }: { habit: Habit }) => {
     const daysEllapsed = Math.round(
       (now.getTime() - createdAt.getTime()) / MILISECONDS_IN_DAY,
     );
+
+    const CURRENT_DAY = 1;
+
+    let dayOffsCounter = 0;
+
+    for (let i = 0; i <= daysEllapsed; i++) {
+      const date = convertToDate(
+        new Date(createdAt.getTime() + i * MILISECONDS_IN_DAY),
+      );
+      const dayMaped = getEmptyDaysAtStart(date);
+      if (daysOff.includes(dayMaped)) {
+        dayOffsCounter++;
+      }
+    }
+
     return {
-      daysEllapsed: daysEllapsed + 1,
+      daysEllapsed: daysEllapsed + CURRENT_DAY - dayOffsCounter,
       daysMissing: daysEllapsed - habit.records.length,
     };
   };
@@ -124,7 +144,8 @@ export const HabitCard = ({ habit }: { habit: Habit }) => {
     if (
       date.getTime() >= createdAt.getTime() &&
       date.getTime() !== now.getTime() &&
-      !value
+      !value &&
+      !daysOff.includes(getEmptyDaysAtStart(date))
     ) {
       return "fill-red-500";
     }
@@ -184,8 +205,26 @@ export const HabitCard = ({ habit }: { habit: Habit }) => {
           classForValue={classForValue}
         />
       </div>
-
-      <div>{/* <g /> */}</div>
+      <HabitLegend />
     </Card>
+  );
+};
+
+const HabitLegend = () => {
+  return (
+    <div className="flex items-center justify-end mt-4 gap-x-4">
+      <div className="flex items-center gap-x-2">
+        <small className="text-[10px]">Day off</small>
+        <div className="size-[11px] bg-white/10 rounded-sm"></div>
+      </div>
+      <div className="flex items-center gap-x-2">
+        <small className="text-[10px]">Missing day</small>
+        <div className="size-[11px] bg-red-500 rounded-sm"></div>
+      </div>
+      <div className="flex items-center gap-x-2">
+        <small className="text-[10px]">Day completed</small>
+        <div className="size-[11px] bg-green-500 rounded-sm"></div>
+      </div>
+    </div>
   );
 };
