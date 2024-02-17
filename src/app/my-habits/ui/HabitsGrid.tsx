@@ -1,6 +1,5 @@
 "use client";
 
-import { HeatMapDate } from "@/components/HeatMap/interfaces";
 import { Habit } from "@/interfaces/habits.interface";
 import { Tooltip } from "react-tooltip";
 import { HabitCard } from "./HabitCard";

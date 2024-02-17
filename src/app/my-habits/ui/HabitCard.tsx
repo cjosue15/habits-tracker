@@ -13,33 +13,41 @@ import { HabitsStatics } from "./HabitsStatics";
 import {
   convertToDate,
   getEmptyDaysAtStart,
+  getMapedDay,
 } from "@/components/HeatMap/helpers";
 import { MILISECONDS_IN_DAY } from "@/components/HeatMap/constants";
+import { Modal } from "@/components/Modal/Modal";
+import { notify } from "@/shared/notify";
 
 const addRecord = async (habitId: string) => {
-  const response = await fetch(`/api/record`, {
-    method: "POST",
-    body: JSON.stringify({ habitId }),
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+  try {
+    const response = await fetch(`/api/record`, {
+      method: "POST",
+      body: JSON.stringify({ habitId }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
 
-  const data = await response.json();
-  console.log(data);
+    await response.json();
+
+    notify("Record added successfully", "success");
+  } catch (error) {}
 };
 
 const deleteRecord = async (recordId: string) => {
-  const response = await fetch(`/api/record`, {
-    method: "DELETE",
-    body: JSON.stringify({ recordId }),
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+  try {
+    const response = await fetch(`/api/record`, {
+      method: "DELETE",
+      body: JSON.stringify({ recordId }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
 
-  const data = await response.json();
-  console.log(data);
+    await response.json();
+    notify("Record deleted successfully", "success");
+  } catch (error) {}
 };
 
 const checkRecord = (habit: Habit) => {
@@ -67,18 +75,19 @@ const deleteHabit = async (habitId: string) => {
       "Content-Type": "application/json",
     },
   });
-  const data = await response.json();
-  console.log(data);
+  await response.json();
 };
 
 export const HabitCard = ({ habit }: { habit: Habit }) => {
   const router = useRouter();
   const createdAt = convertToDate(new Date(habit.createdAt));
   const now = convertToDate(new Date());
-  const daysOff = !habit.daysOff ? [] : JSON.parse(habit.daysOff);
+  let daysOff = !habit.daysOff ? [] : JSON.parse(habit.daysOff);
+  daysOff = daysOff.map((day: number) => getMapedDay(day));
 
   const [isChecked, setIsChecked] = useState(checkRecord(habit));
   const [open, setOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
   useClickOutside(wrapperRef, () => {
     setOpen(false);
@@ -104,8 +113,16 @@ export const HabitCard = ({ habit }: { habit: Habit }) => {
   };
 
   const handleDelete = async () => {
-    await deleteHabit(habit.id);
-    revalidate("my-habits");
+    try {
+      await deleteHabit(habit.id);
+      setModalOpen(false);
+      notify("Habit deleted successfully", "success");
+      revalidate("my-habits");
+    } catch (error) {}
+  };
+
+  const handleModalOpen = () => {
+    setModalOpen(true);
   };
 
   const handleEdit = () => {
@@ -156,57 +173,80 @@ export const HabitCard = ({ habit }: { habit: Habit }) => {
   };
 
   return (
-    <Card key={habit.id}>
-      <div className="flex items-center gap-x-4">
-        <div className="relative flex" ref={wrapperRef}>
-          <button onClick={() => setOpen(!open)}>
-            <OptionsIcon />
-          </button>
-          {open && (
-            <Menu>
-              <MenuItem onClick={handleEdit}>
-                <EditIcon className="size-4" /> Edit
-              </MenuItem>
-              <MenuItem onClick={handleDelete}>
-                <TrashIcon className="size-4" /> Delete
-              </MenuItem>
-            </Menu>
-          )}
+    <>
+      <Card key={habit.id}>
+        <div className="flex items-center gap-x-4">
+          <div className="relative flex" ref={wrapperRef}>
+            <button onClick={() => setOpen(!open)}>
+              <OptionsIcon />
+            </button>
+            {open && (
+              <Menu>
+                <MenuItem onClick={handleEdit}>
+                  <EditIcon className="size-4" /> Edit
+                </MenuItem>
+                <MenuItem onClick={handleModalOpen}>
+                  <TrashIcon className="size-4" /> Delete
+                </MenuItem>
+              </Menu>
+            )}
+          </div>
+          <div className="flex-1">
+            <h3 className="text-lg font-medium">{habit.title}</h3>
+          </div>
+          <div className="flex items-center">
+            <Checkbox
+              checked={isChecked}
+              onChange={(event) => handleCheckboxChange(event, habit)}
+            />
+          </div>
         </div>
-        <div className="flex-1">
-          <h3 className="text-lg font-medium">{habit.title}</h3>
-        </div>
-        <div className="flex items-center">
-          <Checkbox
-            checked={isChecked}
-            onChange={(event) => handleCheckboxChange(event, habit)}
+
+        <p className="text-sm my-6">
+          {habit.description ?? "No description here."}
+        </p>
+
+        <HabitsStatics
+          records={habit.records}
+          createdAt={habit.createdAt}
+          daysEllapsed={daysEllapsed}
+        />
+
+        <div className="overflow-x-auto mt-6">
+          <HeatMap
+            startDate={new Date(2023, 5, 15)}
+            endDate={new Date()}
+            dates={habit.records.map((record) => ({
+              date: new Date(record.createdAt),
+              value: 1,
+            }))}
+            classForValue={classForValue}
           />
         </div>
-      </div>
+        <HabitLegend />
+      </Card>
 
-      <p className="text-sm my-6">
-        {habit.description ?? "No description here."}
-      </p>
-
-      <HabitsStatics
-        records={habit.records}
-        createdAt={habit.createdAt}
-        daysEllapsed={daysEllapsed}
-      />
-
-      <div className="overflow-x-auto mt-6">
-        <HeatMap
-          startDate={new Date(2023, 5, 15)}
-          endDate={new Date()}
-          dates={habit.records.map((record) => ({
-            date: new Date(record.createdAt),
-            value: 1,
-          }))}
-          classForValue={classForValue}
-        />
-      </div>
-      <HabitLegend />
-    </Card>
+      <Modal isOpen={modalOpen}>
+        <p className="text-center text-2xl font-bold mb-6">Are you sure?</p>
+        <p className="text-sm">
+          If you delete this habit, all of your records will be lost forever.
+        </p>
+        <div className="mt-6 flex justify-end gap-x-4">
+          <button
+            className="bg-red-500 rounded-md px-4 py-2 text-center text-sm hover:bg-red-400 font-bold"
+            onClick={handleDelete}
+          >
+            Delete {habit.title}
+          </button>
+          <button
+            className="rounded-md px-4 py-2 text-center text-sm font-bold border border-white/30 hover:bg-black/10"
+            onClick={() => setModalOpen(false)}
+          >
+            Close
+          </button>
+        </div>
+      </Modal>
+    </>
   );
 };
 

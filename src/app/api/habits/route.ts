@@ -32,6 +32,9 @@ export async function POST(request: Request) {
 export async function DELETE(request: Request) {
   try {
     const { id } = await request.json();
+    await prisma?.record.deleteMany({
+      where: { forHabit: id },
+    });
     const deletedHabit = await prisma?.habit.delete({ where: { id } });
     return NextResponse.json(deletedHabit);
   } catch (error: any) {

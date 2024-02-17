@@ -2,10 +2,12 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { BackIcon } from "@/components/icons";
+import { BackIcon, LoaderIcon } from "@/components/icons";
 import Card from "@/components/Card/Card";
 import { revalidate } from "@/actions/revalidate";
 import { Checkbox } from "@/components/Checkbox/Checkbox";
+import { Button } from "@/components/Button/Button";
+import { notify } from "@/shared/notify";
 
 interface Day {
   id: number;
@@ -28,6 +30,7 @@ export default function HabitForm({ id }: { id?: string }) {
   const mapedDays = days.map((day) => ({ ...day, checked: true }));
   const router = useRouter();
   const [title, setTitle] = useState<string>("");
+  const [isLoaded, setIsLoaded] = useState<boolean>(false);
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const [isTitleEmpty, setIsTitleEmpty] = useState<boolean>(false);
   const [description, setDescription] = useState<string | null>(null);
@@ -75,8 +78,11 @@ export default function HabitForm({ id }: { id?: string }) {
       return;
     }
 
+    setIsLoaded(true);
+
     const route = isEditMode ? `/api/habit/${id}` : "/api/habits";
     const method = isEditMode ? "PUT" : "POST";
+    const message = `Habit ${isEditMode ? "updated" : "created"} successfully!`;
 
     const daysOff = checkboxes
       .filter((day) => !day.checked)
@@ -95,11 +101,14 @@ export default function HabitForm({ id }: { id?: string }) {
         },
       });
 
-      const data = await response.json();
+      await response.json();
+      notify(message, "success");
       revalidate("/my-habits");
-      console.log(data);
       router.push("/my-habits");
-    } catch (error) {}
+    } catch (error) {
+    } finally {
+      setIsLoaded(false);
+    }
   };
 
   return (
@@ -176,12 +185,14 @@ export default function HabitForm({ id }: { id?: string }) {
               </div>
             ))}
           </div>
-          <button
+
+          <Button
             type="submit"
-            className="w-full text-black bg-white hover:bg-white/90 focus:ring-4 focus:outline-none focus:ring-green-500 font-medium rounded-lg px-5 py-3 text-center"
+            className="flex justify-center items-center gap-x-2.5"
+            disabled={isLoaded}
           >
-            {!id ? "Create" : "Edit"} habit
-          </button>
+            {!id ? "Create" : "Edit"} habit {isLoaded && <LoaderIcon />}
+          </Button>
         </form>
       </Card>
     </>
