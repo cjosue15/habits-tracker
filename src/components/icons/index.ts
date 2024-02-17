@@ -3,3 +3,4 @@ export * from "./edit";
 export * from "./options";
 export * from "./plus";
 export * from "./trash";
+export * from "./loader";
