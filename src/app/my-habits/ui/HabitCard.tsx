@@ -32,7 +32,9 @@ const addRecord = async (habitId: string) => {
     await response.json();
 
     notify("Record added successfully", "success");
-  } catch (error) {}
+  } catch (error) {
+    notify("Error adding record", "error");
+  }
 };
 
 const deleteRecord = async (recordId: string) => {
@@ -47,7 +49,9 @@ const deleteRecord = async (recordId: string) => {
 
     await response.json();
     notify("Record deleted successfully", "success");
-  } catch (error) {}
+  } catch (error) {
+    notify("Error deleting record", "error");
+  }
 };
 
 const checkRecord = (habit: Habit) => {
@@ -118,7 +122,9 @@ export const HabitCard = ({ habit }: { habit: Habit }) => {
       setModalOpen(false);
       notify("Habit deleted successfully", "success");
       revalidate("my-habits");
-    } catch (error) {}
+    } catch (error) {
+      notify("Error deleting habit", "error");
+    }
   };
 
   const handleModalOpen = () => {

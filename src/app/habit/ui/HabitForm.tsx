@@ -64,7 +64,9 @@ export default function HabitForm({ id }: { id?: string }) {
       }
       setTitle(title);
       setDescription(description);
-    } catch (error) {}
+    } catch (error) {
+      notify("Error getting the habit", "error");
+    }
   };
 
   const handleBack = () => {
@@ -77,18 +79,19 @@ export default function HabitForm({ id }: { id?: string }) {
       setIsTitleEmpty(true);
       return;
     }
-
-    setIsLoaded(true);
-
-    const route = isEditMode ? `/api/habit/${id}` : "/api/habits";
-    const method = isEditMode ? "PUT" : "POST";
-    const message = `Habit ${isEditMode ? "updated" : "created"} successfully!`;
-
-    const daysOff = checkboxes
-      .filter((day) => !day.checked)
-      .map((day) => day.id);
-
+    let errorMessage = "";
     try {
+      setIsLoaded(true);
+
+      const route = isEditMode ? `/api/habit/${id}` : "/api/habits";
+      const method = isEditMode ? "PUT" : "POST";
+      const message = `Habit ${isEditMode ? "updated" : "created"} successfully!`;
+      errorMessage = `Error ${isEditMode ? "updating" : "creating"} the habit`;
+
+      const daysOff = checkboxes
+        .filter((day) => !day.checked)
+        .map((day) => day.id);
+
       const response = await fetch(route, {
         method: method,
         body: JSON.stringify({
@@ -106,6 +109,7 @@ export default function HabitForm({ id }: { id?: string }) {
       revalidate("/my-habits");
       router.push("/my-habits");
     } catch (error) {
+      notify(errorMessage, "error");
     } finally {
       setIsLoaded(false);
     }
