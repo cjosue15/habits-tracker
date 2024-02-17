@@ -86,8 +86,6 @@ export default function HeatMap({
     });
   };
 
-  // console.log(getEmptyDaysAtStart(startDate) + days);
-
   return (
     <svg x="0" y="0" width={getWidthHeatMap()} height={getHeigthHeatMap()}>
       <svg x="0" y="0" height={20}>
@@ -110,7 +108,6 @@ export default function HeatMap({
                 key={dayIndex}
                 weekIndex={weekIndex}
                 dayIndex={dayIndex}
-                index={index}
                 data={data}
               />
             );

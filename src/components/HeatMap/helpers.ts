@@ -26,17 +26,18 @@ export const getWeeksCount = (startDate: Date, endDate: Date) => {
 };
 
 export const getEmptyDaysAtStart = (startDate: Date) => {
-  const key = convertToDate(startDate)
-    .getDay()
-    .toString() as keyof typeof mapedDays;
+  const key = convertToDate(startDate).getDay();
+  return getMapedDay(key);
+};
+
+export const getMapedDay = (day: number) => {
+  const key = day.toString() as keyof typeof mapedDays;
   return mapedDays[key];
 };
 
 export const getEmptyDaysAtEnd = (endDate: Date) => {
-  const key = convertToDate(endDate)
-    .getDay()
-    .toString() as keyof typeof mapedDays;
-  return DAYS_IN_WEEK - 1 - mapedDays[key];
+  const key = convertToDate(endDate).getDay();
+  return DAYS_IN_WEEK - 1 - getMapedDay(key);
 };
 
 // returns a new date shifted a certain number of days (can be negative)

@@ -16,7 +16,6 @@ export interface CellData extends HeatMapDate {
 
 export interface CellProps {
   dayIndex: number;
-  index: number;
   weekIndex: number;
   data: CellData;
 }
