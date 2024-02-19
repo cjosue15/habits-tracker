@@ -8,8 +8,11 @@ import { HabitsGrid } from "./ui/HabitsGrid";
 
 export default async function MyHabitsPage() {
   const response = await fetch(
-    "https://habits-tracker-two.vercel.app/api/habits",
+    `https://habits-tracker-two.vercel.app/api/habits`,
     {
+      headers: {
+        Accept: "application/json; charset=UTF-8",
+      },
       cache: "no-cache",
     },
   );
