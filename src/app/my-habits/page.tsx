@@ -7,9 +7,12 @@ import { PlusIcon } from "@/components/icons";
 import { HabitsGrid } from "./ui/HabitsGrid";
 
 export default async function MyHabitsPage() {
-  const response = await fetch("http://localhost:3000/api/habits", {
-    cache: "no-cache",
-  });
+  const response = await fetch(
+    "https://habits-tracker-two.vercel.app/api/habits",
+    {
+      cache: "no-cache",
+    },
+  );
   const { habits } = await response.json();
 
   return (
