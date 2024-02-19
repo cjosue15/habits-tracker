@@ -104,7 +104,8 @@ export default function HabitForm({ id }: { id?: string }) {
         },
       });
 
-      await response.json();
+      if (!response.ok) throw new Error(errorMessage);
+
       notify(message, "success");
       revalidate("/my-habits");
       router.push("/my-habits");
