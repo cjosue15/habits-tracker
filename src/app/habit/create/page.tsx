@@ -1,10 +1,10 @@
 import HabitForm from "@/app/habit/ui/HabitForm";
-import HabitFormContainer from "@/app/habit/ui/HabitFormContainer";
+import ContainerForm from "@/components/ContainerForm";
 
 export default function FormPage() {
   return (
-    <HabitFormContainer>
+    <ContainerForm>
       <HabitForm />
-    </HabitFormContainer>
+    </ContainerForm>
   );
 }

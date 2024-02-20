@@ -4,3 +4,6 @@ export * from "./options";
 export * from "./plus";
 export * from "./trash";
 export * from "./loader";
+export * from "./rocket";
+export * from "./email";
+export * from "./arrow-right";
