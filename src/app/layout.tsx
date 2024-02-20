@@ -5,7 +5,7 @@ import { Toaster } from "react-hot-toast";
 
 const plus = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  weight: ["400", "500", "700"],
+  weight: ["400", "500", "700", "800"],
 });
 
 export const metadata: Metadata = {
