@@ -3,10 +3,63 @@ import GoogleProvider from "next-auth/providers/google";
 import { AuthOptions } from "next-auth";
 
 import { ProfileGoogle } from "@/interfaces/auth.interface";
-import {
-  checkIfUserExists,
-  signUpWithGoogle,
-} from "@/app/api/auth/register/route";
+import { compare } from "./bcrypt";
+
+export const checkIfUserExists = async (email: string, password: string) => {
+  const userFound = await prisma?.user.findUnique({
+    where: { email },
+  });
+
+  if (!userFound) return null;
+
+  const matchPassword = await compare(password, userFound.password);
+
+  if (!matchPassword) return null;
+
+  return {
+    id: userFound.id,
+    email: userFound.email,
+    name: userFound.name,
+    isEmailVerified: userFound.isEmailVerified,
+  };
+};
+
+export const signUpWithGoogle = async (profile: ProfileGoogle) => {
+  try {
+    const { email, email_verified, name, picture, sub } = profile;
+
+    const userFound = await prisma?.user.findUnique({
+      where: { email },
+    });
+
+    if (userFound && !userFound.isGoogleProvider) {
+      // user already exists and is not a google provider
+      return false;
+    }
+
+    if (userFound && userFound.isGoogleProvider) {
+      return true;
+    }
+
+    await prisma?.user.create({
+      data: {
+        id: sub,
+        email,
+        name,
+        isGoogleProvider: true,
+        password: "",
+        isEmailVerified: email_verified,
+        picture,
+      },
+    });
+
+    return true;
+  } catch (error) {
+    console.error("[signIn] error: ", error);
+    return false;
+  }
+};
+
 export const authOptions: AuthOptions = {
   providers: [
     GoogleProvider({
