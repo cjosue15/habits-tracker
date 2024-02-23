@@ -1,9 +1,16 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/libs/prisma";
+import { getServerSession } from "next-auth";
 
-export async function GET() {
+import { prisma } from "@/libs/prisma";
+import { SessionUser } from "@/interfaces/auth.interface";
+import { authOptions } from "../auth/[...nextauth]/route";
+
+export async function GET(request: Request) {
   try {
-    const habits = await prisma?.habit.findMany();
+    const {
+      user: { id },
+    } = (await getServerSession(authOptions)) as SessionUser;
+    const habits = await prisma?.habit.findMany({ where: { forUser: id } });
     let newHabits: any[] = [];
     for await (const habit of habits) {
       const records = await prisma?.record.findMany({
@@ -19,9 +26,12 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const {
+      user: { id },
+    } = (await getServerSession(authOptions)) as SessionUser;
     const { title, description, daysOff } = await request.json();
     const newHabit = await prisma?.habit.create({
-      data: { title, description, daysOff },
+      data: { title, description, daysOff, forUser: id },
     });
     return NextResponse.json(newHabit, { status: 201 });
   } catch (error: any) {

@@ -1,12 +1,21 @@
 "use client";
 import Card from "@/components/Card/Card";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
 import { GoogleAuthProvider } from "./GoogleAuthProvider";
 import { Button } from "@/components/Button/Button";
 import { EmailIcon } from "@/components/icons/email";
 import { Error, Input, Label } from "@/components/Input";
 import { RocketIcon } from "@/components/icons";
+import { notify } from "@/shared/notify";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
+
+type FormValues = {
+  name: string;
+  email: string;
+  password: string;
+};
 
 export const SignupForm = () => {
   const [signUpWithEmail, setSignUpWithEmail] = useState(false);
@@ -14,12 +23,44 @@ export const SignupForm = () => {
     register,
     formState: { errors },
     handleSubmit,
-  } = useForm();
+  } = useForm<FormValues>();
+  const router = useRouter();
 
-  const onSubmit = (data: any) => console.log(data);
+  const onSubmit: SubmitHandler<FormValues> = async (data) => {
+    try {
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        await signIn("credentials", {
+          email: data.email,
+          password: data.password,
+          redirect: false,
+        });
+        router.push("/my-habits");
+        notify("Welcome! 👋", "success");
+      } else {
+        notify("Oops! Something went wrong", "error");
+      }
+    } catch (error: any) {
+      notify(error.message, "error");
+    }
+  };
+
+  const handleGoogleAuth = async () => {
+    await signIn("google", {
+      callbackUrl: "/auth/login?success=google",
+    });
+  };
+
   return (
     <Card>
-      <GoogleAuthProvider text="Sign up" />
+      <GoogleAuthProvider text="Sign up" onClick={handleGoogleAuth} />
 
       <div className="grid grid-cols-[1fr,30px,1fr] gap-x-4 items-center my-6">
         <hr className="border-white/30" />

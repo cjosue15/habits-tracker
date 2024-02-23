@@ -1,8 +1,18 @@
 import { Button } from "@/components/Button/Button";
 
-export const GoogleAuthProvider = ({ text }: { text: string }) => {
+export const GoogleAuthProvider = ({
+  text,
+  onClick,
+}: {
+  text: string;
+  onClick: () => void;
+}) => {
   return (
-    <Button type="button" className="flex items-center justify-center gap-x-4">
+    <Button
+      type="button"
+      className="flex items-center justify-center gap-x-4"
+      onClick={onClick}
+    >
       <svg
         width="24"
         height="24"

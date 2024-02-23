@@ -7,7 +7,6 @@ import Card from "@/components/Card/Card";
 import { MenuItem, Menu, useClickOutside } from "@/components/Menu";
 import { EditIcon, OptionsIcon, TrashIcon } from "@/components/icons";
 import { useRouter } from "next/navigation";
-import { revalidate } from "@/actions/revalidate";
 import { Checkbox } from "@/components/Checkbox/Checkbox";
 import { HabitsStatics } from "./HabitsStatics";
 import {
@@ -82,7 +81,13 @@ const deleteHabit = async (habitId: string) => {
   await response.json();
 };
 
-export const HabitCard = ({ habit }: { habit: Habit }) => {
+export const HabitCard = ({
+  habit,
+  updateGrid,
+}: {
+  habit: Habit;
+  updateGrid: () => void;
+}) => {
   const router = useRouter();
   const createdAt = convertToDate(new Date(habit.createdAt));
   const now = convertToDate(new Date());
@@ -112,8 +117,7 @@ export const HabitCard = ({ habit }: { habit: Habit }) => {
         deleteRecord(lastRecord.id);
       }
     }
-
-    revalidate("my-habits");
+    updateGrid();
   };
 
   const handleDelete = async () => {
@@ -121,7 +125,7 @@ export const HabitCard = ({ habit }: { habit: Habit }) => {
       await deleteHabit(habit.id);
       setModalOpen(false);
       notify("Habit deleted successfully", "success");
-      revalidate("my-habits");
+      updateGrid();
     } catch (error) {
       notify("Error deleting habit", "error");
     }

@@ -1,25 +1,91 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { signIn } from "next-auth/react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 
 import { Error, Input, Label } from "@/components/Input";
 import { Button } from "@/components/Button/Button";
 import { ArrowRightIcon } from "@/components/icons";
 import Card from "@/components/Card/Card";
+import { notify } from "@/shared/notify";
 import { GoogleAuthProvider } from "./GoogleAuthProvider";
 
+const ACCESS_DENIED = "AccessDenied";
+const GOOGLE_SUCCESS = "google";
+
+type FormValues = {
+  email: string;
+  password: string;
+};
+
 export const LoginForm = () => {
+  const router = useRouter();
   const {
     register,
     formState: { errors },
     handleSubmit,
-  } = useForm();
+  } = useForm<FormValues>();
 
-  const onSubmit = (data: any) => console.log(data);
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    let message = "";
+    let type: "success" | "error" = "success";
+
+    if (searchParams.get("error") === ACCESS_DENIED) {
+      message = "Oops! Something went wrong";
+      type = "error";
+    }
+
+    if (searchParams.get("success") === GOOGLE_SUCCESS) {
+      message = "Welcome! 👋";
+      type = "success";
+      router.push("/my-habits");
+    }
+
+    if (message && type) {
+      setTimeout(() => {
+        notify(message, type);
+      });
+    }
+  }, [searchParams, router]);
+
+  const onSubmit: SubmitHandler<FormValues> = async (data) => {
+    try {
+      const response = await signIn("credentials", {
+        email: data.email,
+        password: data.password,
+        redirect: false,
+        callbackUrl: "/my-habits",
+      });
+
+      if (response?.ok) {
+        notify("Welcome back! 👋", "success");
+        router.push("/my-habits");
+      } else {
+        notify("Invalid email or password", "error");
+      }
+    } catch (error: any) {
+      notify(error.message, "error");
+    }
+  };
+
+  const handleGoogleAuth = async () => {
+    try {
+      await signIn("google", {
+        callbackUrl: "/auth/login?success=google",
+        redirect: false,
+      });
+    } catch (error) {
+      notify("Oops! Something went wrong", "error");
+    }
+  };
 
   return (
     <Card>
-      <GoogleAuthProvider text="Sign In" />
+      <GoogleAuthProvider text="Sign In" onClick={handleGoogleAuth} />
 
       <div className="grid grid-cols-[1fr,30px,1fr] gap-x-4 items-center my-6">
         <hr className="border-white/30" />
