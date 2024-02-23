@@ -3,6 +3,7 @@ import Link from "next/link";
 import ContainerForm from "@/components/ContainerForm";
 import { ArrowRightIcon } from "@/components/icons";
 import { LoginForm } from "../ui/LoginForm";
+import { Suspense } from "react";
 
 export default function LoginPage() {
   return (
@@ -11,8 +12,10 @@ export default function LoginPage() {
         <h1 className="text-4xl font-extrabold text-center mb-8">
           Welcome back! 👋
         </h1>
-        <LoginForm />
 
+        <Suspense>
+          <LoginForm />
+        </Suspense>
         <div className="text-center mt-6">
           <p className="text-sm">
             Don&apos;t have an account?{" "}
