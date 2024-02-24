@@ -102,7 +102,7 @@ export const HabitCard = ({
     setOpen(false);
   });
 
-  const handleCheckboxChange = (
+  const handleCheckboxChange = async (
     event: ChangeEvent<HTMLInputElement>,
     habit: Habit,
   ) => {
@@ -110,11 +110,11 @@ export const HabitCard = ({
     setIsChecked(!isChecked);
 
     if (checked) {
-      addRecord(habit.id);
+      await addRecord(habit.id);
     } else {
       const lastRecord = habit.records.at(-1);
       if (checkRecord(habit) && lastRecord) {
-        deleteRecord(lastRecord.id);
+        await deleteRecord(lastRecord.id);
       }
     }
     updateGrid();
