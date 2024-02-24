@@ -2,6 +2,7 @@
 //
 //
 import { NextResponse } from "next/server";
+import { getToken } from "next-auth/jwt";
 import type { NextRequest } from "next/server";
 
 // export function middleware(req: NextRequest) {
@@ -26,8 +27,13 @@ import type { NextRequest } from "next/server";
 // export const config = { matcher: ["/my-habits", "/habit/:path*"] };
 //
 
-export function middleware(request: NextRequest) {
-  const jwt = request.cookies.get("next-auth.session-token");
+export async function middleware(request: NextRequest) {
+  // const jwt = request.cookies.get("next-auth.session-token");
+
+  const jwt = await getToken({
+    req: request,
+    secret: process.env.NEXTAUTH_SECRET,
+  });
 
   if (!jwt && !request.nextUrl.pathname.includes("/auth"))
     return NextResponse.redirect(new URL("/auth/login", request.url));
