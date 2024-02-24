@@ -2,6 +2,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import { AuthOptions } from "next-auth";
 
+import { prisma } from "@/libs/prisma";
 import { ProfileGoogle } from "@/interfaces/auth.interface";
 import { compare } from "./bcrypt";
 
