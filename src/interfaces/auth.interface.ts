@@ -25,6 +25,11 @@ export interface CustomJWT {
 }
 
 export interface Tokens {
-  accessToken: string;
+  accessToken: string | GoogleToken;
   refreshToken: string;
+}
+
+export interface GoogleToken {
+  token: string;
+  expiresIn: number;
 }

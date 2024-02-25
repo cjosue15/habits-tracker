@@ -1,6 +1,6 @@
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
-import { AuthOptions } from "next-auth";
+import { Account, AuthOptions, User } from "next-auth";
 
 import { prisma } from "@/libs/prisma";
 import {
@@ -10,6 +10,7 @@ import {
 } from "@/interfaces/auth.interface";
 import { compare } from "./bcrypt";
 import { generateTokens } from "./jwt";
+import { JWT } from "next-auth/jwt";
 
 export const checkIfUserExists = async (
   email: string,
@@ -79,6 +80,46 @@ export const signUpWithGoogle = async (profile: ProfileGoogle) => {
   }
 };
 
+const createJwtCredential = (token: JWT, user: User) => {
+  const accessToken = user.tokens.accessToken;
+  const refreshToken = user.tokens.refreshToken;
+  const { tokens: _, ...newUser } = user;
+  token.tokens = {
+    accessToken,
+    refreshToken,
+  };
+
+  token.user = {
+    ...newUser,
+  };
+
+  return token;
+};
+
+const createJwtGoogle = (
+  token: JWT,
+  profile: ProfileGoogle,
+  account: Account,
+) => {
+  const newUser: CustomUser = {
+    id: profile.sub,
+    email: profile.email,
+    name: profile.name,
+    isEmailVerified: profile.email_verified,
+    provider: "google",
+    image: profile.picture,
+    tokens: {
+      refreshToken: account.refresh_token ?? "",
+      accessToken: {
+        token: account.access_token ?? "",
+        expiresIn: account.expires_at || 0,
+      },
+    },
+  };
+
+  return createJwtCredential(token, newUser);
+};
+
 export const authOptions: AuthOptions = {
   providers: [
     GoogleProvider({
@@ -121,19 +162,13 @@ export const authOptions: AuthOptions = {
 
       return true;
     },
-    jwt({ token, user }) {
-      if (user) {
-        const accessToken = user.tokens.accessToken;
-        const refreshToken = user.tokens.refreshToken;
-        const { tokens: _, ...newUser } = user;
-        token.tokens = {
-          accessToken,
-          refreshToken,
-        };
+    jwt({ token, user, account, profile }) {
+      if (user && account && account?.provider === "google") {
+        return createJwtGoogle(token, profile as ProfileGoogle, account);
+      }
 
-        token.user = {
-          ...newUser,
-        };
+      if (user && account?.provider !== "google") {
+        return createJwtCredential(token, user);
       }
 
       return token;
