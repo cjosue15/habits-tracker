@@ -2,14 +2,14 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 
 import { prisma } from "@/libs/prisma";
-import { SessionUser } from "@/interfaces/auth.interface";
+import { CustomSession } from "@/interfaces/auth.interface";
 import { authOptions } from "@/libs/auth";
 
 export async function POST(request: Request) {
   try {
     const {
       user: { id },
-    } = (await getServerSession(authOptions)) as SessionUser;
+    } = (await getServerSession(authOptions)) as CustomSession;
     const { habitId } = await request.json();
     const newRecord = await prisma?.record.create({
       data: { forUser: id, forHabit: habitId },

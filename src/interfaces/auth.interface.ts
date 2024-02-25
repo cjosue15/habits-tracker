@@ -6,12 +6,25 @@ export interface ProfileGoogle {
   picture?: string;
 }
 
-export interface SessionUser {
-  user: {
-    id: string;
-    email: string;
-    name: string;
-    provider: string;
-    isEmailVerified: boolean;
-  };
+export interface CustomUser {
+  id: string;
+  email: string;
+  name: string;
+  provider: string;
+  isEmailVerified: boolean;
+  image?: string | null;
+  tokens: Tokens;
+}
+
+export interface CustomSession extends CustomJWT {
+  user: CustomUser;
+}
+
+export interface CustomJWT {
+  tokens: Tokens;
+}
+
+export interface Tokens {
+  accessToken: string;
+  refreshToken: string;
 }

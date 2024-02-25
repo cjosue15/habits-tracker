@@ -2,14 +2,14 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 
 import { prisma } from "@/libs/prisma";
-import { SessionUser } from "@/interfaces/auth.interface";
+import { CustomSession } from "@/interfaces/auth.interface";
 import { authOptions } from "@/libs/auth";
 
 export async function GET(request: Request) {
   try {
     const {
       user: { id },
-    } = (await getServerSession(authOptions)) as SessionUser;
+    } = (await getServerSession(authOptions)) as CustomSession;
     const habits = await prisma?.habit.findMany({ where: { forUser: id } });
     let newHabits: any[] = [];
     for await (const habit of habits) {
@@ -28,7 +28,7 @@ export async function POST(request: Request) {
   try {
     const {
       user: { id },
-    } = (await getServerSession(authOptions)) as SessionUser;
+    } = (await getServerSession(authOptions)) as CustomSession;
     const { title, description, daysOff } = await request.json();
     const newHabit = await prisma?.habit.create({
       data: { title, description, daysOff, forUser: id },
