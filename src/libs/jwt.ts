@@ -28,10 +28,6 @@ export const verifyToken = async (token: string) => {
 
 export const checkIfTokenIsExpired = (token: string) => {
   const { exp } = decodeToken(token) as JWTPayload;
-  const timestamp = exp || 0;
-  const expirationDate = new Date(timestamp * 1000);
-  const dateString = expirationDate.toLocaleString();
-  console.log(dateString);
   return Date.now() / 1000 > (exp || 0);
 };
 

@@ -1,31 +1,3 @@
-// import { NextResponse } from "next/server";
-// import { getToken } from "next-auth/jwt";
-// import type { NextRequest } from "next/server";
-//
-// export async function middleware(request: NextRequest) {
-//   const jwt = await getToken({
-//     req: request,
-//     secret: process.env.NEXTAUTH_SECRET,
-//   });
-//
-//   if (!jwt && !request.nextUrl.pathname.includes("/auth"))
-//     return NextResponse.redirect(new URL("/auth/login", request.url));
-//
-//   // verify if the token's expiration date is greater than the current date
-//   // if the toeken is expired, call the refresh token endpoint
-//
-//   // this condition avoid to show the login page if the user is logged in
-//   if (jwt && request.nextUrl.pathname.includes("/auth")) {
-//     return NextResponse.redirect(new URL("/my-habits", request.url));
-//   }
-//
-//   return NextResponse.next();
-// }
-//
-// export const config = {
-//   matcher: ["/my-habits", "/habit/:path*", "/auth/:path*"],
-// };
-
 import { NextMiddleware, NextRequest, NextResponse } from "next/server";
 import { encode, getToken } from "next-auth/jwt";
 import { checkIfTokenIsExpired, refreshAccessToken } from "./libs/jwt";
@@ -56,7 +28,8 @@ function shouldUpdateToken(token: string) {
 export const middleware: NextMiddleware = async (request: NextRequest) => {
   const session = await getToken({ req: request });
 
-  if (!session) return signOut(request);
+  if (!session || !session.tokens.accessToken || !session.tokens.refreshToken)
+    return signOut(request);
 
   const response = NextResponse.next();
 

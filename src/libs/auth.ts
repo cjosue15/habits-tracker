@@ -75,7 +75,6 @@ export const signUpWithGoogle = async (profile: ProfileGoogle) => {
 
     return true;
   } catch (error) {
-    console.error("[signIn] error: ", error);
     return false;
   }
 };
