@@ -5,7 +5,7 @@ const secret = new TextEncoder().encode(process.env.NEXTAUTH_SECRET as string);
 
 export const signToken = async (
   payload: string | object | Buffer,
-  expiresIn: string | number = "1m",
+  expiresIn: string | number = "1d",
 ) => {
   const algorithm = "HS256";
 
@@ -48,8 +48,8 @@ export const refreshAccessToken = async (refreshToken: string) => {
 export const generateTokens = async (payload: JWTPayload): Promise<Tokens> => {
   try {
     const [accessToken, refreshToken] = await Promise.all([
-      signToken(payload, "1m"),
-      signToken(payload, "3m"),
+      signToken(payload),
+      signToken(payload, "9w"),
     ]);
 
     return {
