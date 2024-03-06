@@ -1,4 +1,5 @@
 import { ChangeEvent, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import HeatMap from "@/components/HeatMap/HeatMap";
 import { Habit } from "@/interfaces/habits.interface";
@@ -6,9 +7,7 @@ import { HeatMapDate } from "@/components/HeatMap/interfaces";
 import Card from "@/components/Card/Card";
 import { MenuItem, Menu, useClickOutside } from "@/components/Menu";
 import { EditIcon, OptionsIcon, TrashIcon } from "@/components/icons";
-import { useRouter } from "next/navigation";
 import { Checkbox } from "@/components/Checkbox/Checkbox";
-import { HabitsStatics } from "./HabitsStatics";
 import {
   convertToDate,
   getEmptyDaysAtStart,
@@ -17,6 +16,9 @@ import {
 import { MILISECONDS_IN_DAY } from "@/components/HeatMap/constants";
 import { Modal } from "@/components/Modal/Modal";
 import { notify } from "@/shared/notify";
+
+import { HabitsStatics } from "./HabitsStatics";
+import { useConfetti } from "../hooks/useConfetti";
 
 const addRecord = async (habitId: string) => {
   try {
@@ -97,27 +99,36 @@ export const HabitCard = ({
   const [isChecked, setIsChecked] = useState(checkRecord(habit));
   const [open, setOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const checkboxRef = useRef<HTMLLabelElement>(null);
   useClickOutside(wrapperRef, () => {
     setOpen(false);
   });
+  useConfetti(checkboxRef, !isChecked);
 
   const handleCheckboxChange = async (
     event: ChangeEvent<HTMLInputElement>,
     habit: Habit,
   ) => {
-    const { checked } = event.target;
-    setIsChecked(!isChecked);
+    if (isLoading) return;
+    try {
+      setIsLoading(true);
+      const { checked } = event.target;
+      setIsChecked(!isChecked);
 
-    if (checked) {
-      await addRecord(habit.id);
-    } else {
-      const lastRecord = habit.records.at(-1);
-      if (checkRecord(habit) && lastRecord) {
-        await deleteRecord(lastRecord.id);
+      if (checked) {
+        await addRecord(habit.id);
+      } else {
+        const lastRecord = habit.records.at(-1);
+        if (checkRecord(habit) && lastRecord) {
+          await deleteRecord(lastRecord.id);
+        }
       }
+      updateGrid();
+    } finally {
+      setIsLoading(false);
     }
-    updateGrid();
   };
 
   const handleDelete = async () => {
@@ -206,6 +217,7 @@ export const HabitCard = ({
           </div>
           <div className="flex items-center">
             <Checkbox
+              reference={checkboxRef!}
               checked={isChecked}
               onChange={(event) => handleCheckboxChange(event, habit)}
             />

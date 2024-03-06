@@ -1,4 +1,4 @@
-import { ChangeEvent } from "react";
+import { ChangeEvent, RefObject } from "react";
 
 let checkboxId = 0;
 
@@ -8,15 +8,17 @@ export type CheckboxProps = {
   label?: string;
   disabled?: boolean;
   className?: string;
+  reference?: RefObject<HTMLLabelElement>;
 };
 
 export const Checkbox = (props: CheckboxProps) => {
   checkboxId++;
-  const { checked, onChange, label } = props;
+  const { checked, onChange, label, reference } = props;
   return (
     <label
       className={`${props.className ?? ""} ${label ? "gap-y-4" : ""}`}
       htmlFor={`${checkboxId}-checkbox`}
+      ref={reference}
     >
       <div
         className={`
