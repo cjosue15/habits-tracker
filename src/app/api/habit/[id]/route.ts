@@ -24,7 +24,7 @@ export async function PUT(
 ) {
   try {
     const { id } = params;
-    const { title, description } = await request.json();
+    const { title, description, daysOff } = await request.json();
     const habitFound = await prisma?.habit.findFirst({
       where: { id },
     });
@@ -35,7 +35,7 @@ export async function PUT(
 
     const updatedHabit = await prisma?.habit.update({
       where: { id },
-      data: { title, description },
+      data: { title, description, daysOff },
     });
 
     return NextResponse.json(updatedHabit);
