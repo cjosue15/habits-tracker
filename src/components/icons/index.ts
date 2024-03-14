@@ -7,3 +7,5 @@ export * from "./loader";
 export * from "./rocket";
 export * from "./email";
 export * from "./arrow-right";
+export * from "./tree";
+export * from "./empty-tree";

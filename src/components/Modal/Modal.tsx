@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { createPortal } from "react-dom";
 
 interface ModalProps {
@@ -43,7 +43,7 @@ export const ModalContent = ({
       >
         <div
           className="bg-secondary shadow-appShadow 
-          relative rounded-md min-w-96 p-6 
+          relative rounded-md min-w-96 p-6 mx-6
           group-data-[state=open]:animate-dialog-in group-data-[state=close]:animate-dialog-out"
         >
           {children}

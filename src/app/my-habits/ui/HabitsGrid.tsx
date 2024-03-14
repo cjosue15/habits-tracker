@@ -5,6 +5,7 @@ import { Tooltip } from "react-tooltip";
 import { useEffect, useState } from "react";
 import { HabitCard } from "./HabitCard";
 import { notify } from "@/shared/notify";
+import { EmptyTreeIcon } from "@/components/icons";
 
 export interface HabitsGridProps {
   habits: Habit[];
@@ -38,19 +39,36 @@ export const HabitsGrid = () => {
 
   return (
     <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 my-16">
-        {habits?.map((habit: Habit) => {
-          return (
-            <HabitCard
-              key={habit.id}
-              habit={habit}
-              updateGrid={handleUpdateGrid}
-            />
-          );
-        })}
-      </div>
+      {habits.length === 0 ? (
+        <HabitsGridEmpty />
+      ) : (
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 my-16">
+            {habits?.map((habit: Habit) => {
+              return (
+                <HabitCard
+                  key={habit.id}
+                  habit={habit}
+                  updateGrid={handleUpdateGrid}
+                />
+              );
+            })}
+          </div>
 
-      <Tooltip id="dayTooltip" className="!text-xs" />
+          <Tooltip id="dayTooltip" className="!text-xs" />
+        </>
+      )}
     </>
+  );
+};
+
+export const HabitsGridEmpty = () => {
+  return (
+    <div className="flex justify-center items-center flex-col mt-32">
+      <EmptyTreeIcon />
+      <p className="text-white text-lg mt-10">
+        You haven&apos;t created any habits (yet)
+      </p>
+    </div>
   );
 };
